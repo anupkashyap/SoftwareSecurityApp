@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Software Security App</string>
+    <string name="appHeader">Software Security</string>
+    <string name="groupDetails">Group 25 \n Viraj \n Anup \n Jay</string>
+    <string name="broadcastActivityText">Broadcast Activity</string>
+    <string name="serviceActivityBtn">Service Activity</string>
+    <string name="contentProviderText">Content Provider Activity</string>
+    <string name="title_activity_broadcast_receiver">BroadcastReceiverActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+</resources>
