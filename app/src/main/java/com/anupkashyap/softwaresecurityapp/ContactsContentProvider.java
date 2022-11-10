@@ -1,63 +1,109 @@
 package com.anupkashyap.softwaresecurityapp;
 
+
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Log;
 
 public class ContactsContentProvider extends ContentProvider {
-    ArrayList<Contact> contacts;
-    public class Contact{
-
-        String id;
-        String name;
-        String phone;
-        public Contact(String _id,String _name, String _phone){
-            id=_id;
-            name=_name;
-            phone=_phone;
-        }
+    private static final String AUTHORITY = "com.anupkashyap.softwaresecurityapp";
+    private static final String BASE_PATH = "student";
+    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/"
+            + BASE_PATH);
+    private static final UriMatcher uriMatcher = new
+            UriMatcher(UriMatcher.NO_MATCH);
+    private static final int STUDENTS = 1;
+    private static final int STUDENT = 2;
+    static {
+        uriMatcher.addURI(AUTHORITY, BASE_PATH, STUDENTS);
+        uriMatcher.addURI(AUTHORITY, BASE_PATH + "/#", STUDENT);
+    }
+    SQLiteDatabase db;
+    public ContactsContentProvider(){
     }
     @Override
     public boolean onCreate() {
-       contacts= new ArrayList<>();
-
-       return true;
+        db = new ContactDatabase(getContext()).getWritableDatabase();
+        return true;
     }
-
-    @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
-        return null;
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        int delCount = 0;
+        switch (uriMatcher.match(uri)) {
+            case STUDENTS:
+                delCount = db.delete(ContactDatabase.TABLE, selection,
+                        selectionArgs);
+                break;
+            case STUDENT:
+                delCount = db.delete(ContactDatabase.TABLE, selection, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("This is an Unknown URI " +
+                        uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return delCount;
     }
-
-    @Nullable
     @Override
-    public String getType(@NonNull Uri uri) {
-        return null;
+    public String getType(Uri uri) {
+        switch (uriMatcher.match(uri)) {
+            case 1:
+                return "vnd.android.cursor.dir/contacts";
+            default:
+                throw new IllegalArgumentException("This is an Unknown URI " +
+                        uri);
+        }
     }
-
-    @Nullable
     @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-      return null;
+    public Uri insert(Uri uri, ContentValues values) {
+        Log.i("insert uri: ", uri.toString());
+        long id = db.insert(ContactDatabase.TABLE, null, values);
+        if (id > 0) {
+            Uri _uri = ContentUris.withAppendedId(CONTENT_URI, id);
+            getContext().getContentResolver().notifyChange(_uri, null);
+            return _uri;
+        }
+        throw new SQLException("Insertion Failed for URI :" + uri);
     }
-
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public Cursor query(Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
+        // TODO: Implement this to handle query requests from clients.
+        Log.i("query uri: ", uri.toString());
+        Cursor cursor;
+        switch (uriMatcher.match(uri)) {
+            case 1:
+                cursor = db.query(ContactDatabase.TABLE,
+                        ContactDatabase.ALL_COLUMNS, selection
+                        , null, null, null, ContactDatabase.NAME + " ASC");
+                break;
+            default:
+                throw new IllegalArgumentException("This is an Unknown URI " +
+                        uri);
+        }
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
     }
-
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int update(Uri uri, ContentValues values, String selection,
+                      String[] selectionArgs) {
+        int updCount = 0;
+        switch (uriMatcher.match(uri)) {
+            case 1:
+                updCount = db.update(ContactDatabase.TABLE, values, selection,
+                        selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("This is an Unknown URI " +
+                        uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return updCount;
     }
 }

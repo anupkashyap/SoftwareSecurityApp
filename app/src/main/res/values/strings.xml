@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Software Security App</string>
     <string name="appHeader">Software Security</string>
-    <string name="groupDetails">Group 25 \n Viraj \n Anup \n Jay</string>
+    <string name="groupDetails">Group 25 \n vsonaje@asu.edu  \n akashy15@asu.edu \n jshete@asu.edu</string>
     <string name="broadcastActivityText">Broadcast Activity</string>
     <string name="serviceActivityBtn">Service Activity</string>
     <string name="contentProviderText">Content Provider Activity</string>
